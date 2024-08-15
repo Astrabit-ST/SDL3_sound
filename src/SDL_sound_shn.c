@@ -179,7 +179,7 @@ static int word_get(shn_t *shn, SDL_IOStream *rw, Uint32 *word)
 {
     if (shn->nbyteget < 4)
     {
-        shn->nbyteget += SDL_ReadIO(rw, shn->getbuf, 1, SHN_BUFSIZ);
+        shn->nbyteget += SDL_ReadIO(rw, shn->getbuf, SHN_BUFSIZ);
         BAIL_IF_MACRO(shn->nbyteget < 4, NULL, 0);
         shn->getbufp = shn->getbuf;
     } /* if */
@@ -302,11 +302,11 @@ static SDL_INLINE int extended_shn_magic_search(Sound_Sample *sample)
 
     while (1)
     {
-        BAIL_IF_MACRO(SDL_ReadIO(rw, &ch, sizeof (ch), 1) != 1, NULL, -1);
+        BAIL_IF_MACRO(SDL_ReadIO(rw, &ch, sizeof (ch)) != 1, NULL, -1);
         word = ((word << 8) & 0xFFFFFF00) | ch;
         if (SDL_Swap32BE(word) == SHN_MAGIC)
         {
-            BAIL_IF_MACRO(SDL_ReadIO(rw, &ch, sizeof (ch), 1) != 1, NULL, -1);
+            BAIL_IF_MACRO(SDL_ReadIO(rw, &ch, sizeof (ch)) != 1, NULL, -1);
             return (int) ch;
         } /* if */
     } /* while */
@@ -334,9 +334,9 @@ static SDL_INLINE int determine_shn_version(Sound_Sample *sample,
     if (ext != NULL && SDL_strcasecmp(ext, "shn") == 0)
         return extended_shn_magic_search(sample);
 
-    BAIL_IF_MACRO(SDL_ReadIO(rw, &magic, sizeof (magic), 1) != 1, NULL, -1);
+    BAIL_IF_MACRO(SDL_ReadIO(rw, &magic, sizeof (magic)) != 1, NULL, -1);
     BAIL_IF_MACRO(SDL_Swap32LE(magic) != SHN_MAGIC, "SHN: Not a SHN file", -1);
-    BAIL_IF_MACRO(SDL_ReadIO(rw, &ch, sizeof (ch), 1) != 1, NULL, -1);
+    BAIL_IF_MACRO(SDL_ReadIO(rw, &ch, sizeof (ch)) != 1, NULL, -1);
     BAIL_IF_MACRO(ch > 3, "SHN: Unsupported file version", -1);
 
     return (int) ch;
@@ -402,11 +402,17 @@ static SDL_INLINE Uint16 cvt_shnftype_to_sdlfmt(Sint16 shntype)
         case SHN_TYPE_S16LH:
             return SDL_AUDIO_S16LE;
 
-        case SHN_TYPE_U16HL:
-            return AUDIO_U16MSB;
+        // -- FIXME Melody --
+        // SDL3 removes AUDIO_U16MSB and AUDIO_U16LSB because they were not heavily used.
+        // We'd need to add some conversion logic to handle this and frankly I couldn't be bothered.
+        // -- FIXME --
+        default:
+            BAIL_MACRO("SHN: Unsupported format, please reach out to melody@melody-is.gay!", 0)
+        // case SHN_TYPE_U16HL:
+        //     return AUDIO_U16MSB;
 
-        case SHN_TYPE_U16LH:
-            return AUDIO_U16LSB;
+        // case SHN_TYPE_U16LH:
+        //     return AUDIO_U16LSB;
     } /* switch */
 
     return 0;
