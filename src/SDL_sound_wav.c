@@ -21,7 +21,7 @@
 /* Better than SDL_ReadU16LE, since you can detect i/o errors... */
 static SDL_INLINE int read_le16(SDL_IOStream *rw, Uint16 *ui16)
 {
-    int rc = SDL_ReadIO(rw, ui16, sizeof (Uint16), 1);
+    int rc = SDL_ReadIO(rw, ui16, sizeof (Uint16));
     BAIL_IF_MACRO(rc != 1, ERR_IO_ERROR, 0);
     *ui16 = SDL_Swap16LE(*ui16);
     return 1;
@@ -31,7 +31,7 @@ static SDL_INLINE int read_le16(SDL_IOStream *rw, Uint16 *ui16)
 /* Better than SDL_ReadU32LE, since you can detect i/o errors... */
 static SDL_INLINE int read_le32(SDL_IOStream *rw, Uint32 *ui32)
 {
-    int rc = SDL_ReadIO(rw, ui32, sizeof (Uint32), 1);
+    int rc = SDL_ReadIO(rw, ui32, sizeof (Uint32));
     BAIL_IF_MACRO(rc != 1, ERR_IO_ERROR, 0);
     *ui32 = SDL_Swap32LE(*ui32);
     return 1;
@@ -51,7 +51,7 @@ static SDL_INLINE int read_le32s(SDL_IOStream *rw, Sint32 *si32)
 /* This is just cleaner on the caller's end... */
 static SDL_INLINE int read_uint8(SDL_IOStream *rw, Uint8 *ui8)
 {
-    int rc = SDL_ReadIO(rw, ui8, sizeof (Uint8), 1);
+    int rc = SDL_ReadIO(rw, ui8, sizeof (Uint8));
     BAIL_IF_MACRO(rc != 1, ERR_IO_ERROR, 0);
     return 1;
 } /* read_uint8 */
@@ -232,7 +232,7 @@ static Uint32 read_sample_fmt_normal(Sound_Sample *sample)
          * We don't actually do any decoding, so we read the wav data
          *  directly into the internal buffer...
          */
-    retval = SDL_ReadIO(internal->rw, internal->buffer, 1, max);
+    retval = SDL_ReadIO(internal->rw, internal->buffer, max);
 
     w->bytesLeft -= retval;
 
@@ -672,9 +672,16 @@ static int WAV_open_internal(Sound_Sample *sample, const char *ext, fmt_t *fmt)
     data_t d;
     wav_t *w;
 
-    BAIL_IF_MACRO(SDL_ReadU32LE(rw) != riffID, "WAV: Not a RIFF file.", 0);
-    SDL_ReadU32LE(rw);  /* throw the length away; we get this info later. */
-    BAIL_IF_MACRO(SDL_ReadU32LE(rw) != waveID, "WAV: Not a WAVE file.", 0);
+    Uint32 read_riff_id;
+    SDL_ReadU32LE(rw, &read_riff_id);
+    BAIL_IF_MACRO(read_riff_id != riffID, "WAV: Not a RIFF file.", 0);
+    // -- FIXME Melody --
+    // There's another case like this, see SDL_sound_aiff.c
+    // -- FIXME --
+    SDL_ReadU32LE(rw, &read_riff_id);  /* throw the length away; we get this info later. */
+    Uint32 read_wave_id;
+    SDL_ReadU32LE(rw, &read_wave_id);
+    BAIL_IF_MACRO(read_wave_id != waveID, "WAV: Not a WAVE file.", 0);
     BAIL_IF_MACRO(!find_chunk(rw, fmtID), "WAV: No format chunk.", 0);
     BAIL_IF_MACRO(!read_fmt_chunk(rw, fmt), "WAV: Can't read format chunk.", 0);
 
