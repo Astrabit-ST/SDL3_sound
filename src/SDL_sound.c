@@ -84,7 +84,7 @@ static decoder_element decoders[] =
 
 /* General SDL_sound state ... */
 
-static SDL_TLSID tlsid_errmsg = 0;
+static SDL_TLSID tlsid_errmsg = { 0 };
 
 typedef struct
 {
@@ -127,7 +127,7 @@ int Sound_Init(void)
 
     SDL_InitSubSystem(SDL_INIT_AUDIO);
 
-    tlsid_errmsg = SDL_TLSCreate();
+    SDL_SetTLS(&tlsid_errmsg, NULL, NULL);
 
     samplelist_mutex = SDL_CreateMutex();
 
@@ -174,7 +174,7 @@ int Sound_Quit(void)
         SDL_free((void *) available_decoders);
     available_decoders = NULL;
 
-    tlsid_errmsg = 0;
+    tlsid_errmsg.value = 0;
 
     return 1;
 } /* Sound_Quit */
@@ -188,7 +188,7 @@ const Sound_DecoderInfo **Sound_AvailableDecoders(void)
 
 static ErrMsg *findErrorForCurrentThread(void)
 {
-    return (ErrMsg *) SDL_GetTLS(tlsid_errmsg);
+    return (ErrMsg *) SDL_GetTLS(&tlsid_errmsg);
 }
 
 
@@ -239,7 +239,7 @@ void __Sound_SetError(const char *str)
         if (err == NULL)
             return;   /* uhh...? */
 
-        SDL_SetTLS(tlsid_errmsg, err, SDL_free);
+        SDL_SetTLS(&tlsid_errmsg, err, SDL_free);
     } /* if */
 
     err->error_available = SDL_TRUE;
@@ -373,12 +373,9 @@ static int init_sample(const Sound_DecoderFunctions *funcs,
              (sample->actual.channels != desired.channels) ||
              (sample->actual.rate != desired.rate) )
         {
-            internal->stream = SDL_CreateAudioStream(sample->actual.format,
-                                                  sample->actual.channels,
-                                                  sample->actual.rate,
-                                                  desired.format,
-                                                  desired.channels,
-                                                  desired.rate);
+            const SDL_AudioSpec src = {sample->actual.format, sample->actual.channels, sample->actual.rate};
+            const SDL_AudioSpec dst = {desired.format, desired.channels, desired.rate};
+            internal->stream = SDL_CreateAudioStream(&src, &dst);
 
             if (internal->stream == NULL)
             {
@@ -870,20 +867,9 @@ char *__Sound_strtokr(char *s1, const char *s2, char **ptr)
 #endif
 
 
-/* This falls back to an included copy/paste of SDL's SIMDAlloc code if you aren't using a new enough SDL.
-   To keep this simple, the included copy assumes you need to align to 64 bytes, which is a little
-   wasteful but should work on everything from MMX to AVX-512. The real SDL checks the CPU at runtime
-   to decide what's available and aligns to smaller numbers if all you have is SSE, Altivec or NEON.
-   Not to mention this is just a second copy of the code that doesn't get attention...you should really
-   upgrade your SDL. Ideally this copy goes away at some point. */
-
-#define USE_REAL_SDL_SIMDALLOC SDL_VERSION_ATLEAST(2, 0, 14)
-
+// SDL3 removed SDL_SIMDAlloc, so we have to do it ourselves
 void *__Sound_SIMDAlloc(const size_t len)
 {
-#if USE_REAL_SDL_SIMDALLOC
-    return SDL_SIMDAlloc(len);
-#else
     const size_t alignment = 64;
     const size_t padding = alignment - (len % alignment);
     const size_t padded = (padding != alignment) ? (len + padding) : len;
@@ -896,14 +882,10 @@ void *__Sound_SIMDAlloc(const size_t len)
         *(((void **) retval) - 1) = ptr;
     }
     return retval;
-#endif
 }
 
 void *__Sound_SIMDRealloc(void *mem, const size_t len)
 {
-#if USE_REAL_SDL_SIMDALLOC
-    return SDL_SIMDRealloc(mem, len);
-#else
     const size_t alignment = 64;
     const size_t padding = alignment - (len % alignment);
     const size_t padded = (padding != alignment) ? (len + padding) : len;
@@ -948,20 +930,15 @@ void *__Sound_SIMDRealloc(void *mem, const size_t len)
     /* Actually store the allocated pointer, finally. */
     *(((void **) retval) - 1) = ptr;
     return retval;
-#endif
 }
 
 void __Sound_SIMDFree(void *ptr)
 {
-#if USE_REAL_SDL_SIMDALLOC
-    SDL_SIMDFree(ptr);
-#else
     if (ptr) {
         void **realptr = (void **) ptr;
         realptr--;
         SDL_free(*(((void **) ptr) - 1));
     }
-#endif
 }
 
 /* end of SDL_sound.c ... */
