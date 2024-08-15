@@ -105,16 +105,21 @@ static int MODPLUG_open(Sound_Sample *sample, const char *ext)
     size = SDL_GetIOSize(internal->rw);
     BAIL_IF_MACRO(size <= 0 || size > (Sint64)0x7fffffff, "MODPLUG: Not a module file.", 0);
 
-    if (internal->rw->type == SDL_RWOPS_MEMORY || internal->rw->type == SDL_RWOPS_MEMORY_RO)
-    {
-        data = internal->rw->hidden.mem.base;
-        retval = 0;
-    }
-    else
+    // -- FIXME Melody --
+    // SDL3 seems to have removed the type field on RWOps (now SDL_IOStream)
+    // so this code is defunct. We could probably replicate its behavior by inspecting SDL_IOStream's properties,
+    // but this is likely not necessary.
+    // -- FIXME --
+    // if (internal->rw->type == SDL_RWOPS_MEMORY || internal->rw->type == SDL_RWOPS_MEMORY_RO)
+    // {
+    //     data = internal->rw->hidden.mem.base;
+    //     retval = 0;
+    // }
+    // else
     {
         data = SDL_malloc((size_t) size);
         BAIL_IF_MACRO(data == NULL, ERR_OUT_OF_MEMORY, 0);
-        retval = SDL_ReadIO(internal->rw, data, 1, size);
+        retval = SDL_ReadIO(internal->rw, data, size);
         if (retval != (size_t)size) SDL_free(data);
         BAIL_IF_MACRO(retval != (size_t)size, ERR_IO_ERROR, 0);
     }
