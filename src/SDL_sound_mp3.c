@@ -43,7 +43,7 @@ static size_t mp3_read(void* pUserData, void* pBufferOut, size_t bytesToRead)
     /* !!! FIXME: dr_mp3 treats returning less than bytesToRead as EOF. So we can't EAGAIN. */
     while (bytesToRead)
     {
-        const size_t rc = SDL_ReadIO(rwops, ptr, 1, bytesToRead);
+        const size_t rc = SDL_ReadIO(rwops, ptr, bytesToRead);
         if (rc == 0) break;
         bytesToRead -= rc;
         retval += rc;
