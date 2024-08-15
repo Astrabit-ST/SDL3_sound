@@ -1,6 +1,6 @@
 # SDL_sound
 
-SDL_sound; an abstract soundfile decoder.
+SDL_sound; an abstract soundfile decoder, ported to SDL3.
 
 ## What is this?
 
@@ -19,8 +19,10 @@ Please check the website for the most up-to-date information about SDL_sound:
 
 https://icculus.org/SDL_sound/
 
-SDL_sound _REQUIRES_ Simple Directmedia Layer (SDL) 2.x to function, and cannot
-be built without it. You can get SDL from https://www.libsdl.org/
+SDL_sound _REQUIRES_ Simple Directmedia Layer (SDL) 3.x (still not released) to function, and cannot
+be built without it. You can get SDL3 from https://github.com/libsdl-org/SDL
+
+#### PLEASE FILE AN ISSUE IF NEWER VERSIONS OF SDL3 BREAK THIS LIBRARY!
 
 Current versions of SDL_sound do not use any external libraries for decoding
 various file formats. All needed decoder source code is included with the

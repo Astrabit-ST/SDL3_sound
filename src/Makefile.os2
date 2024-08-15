@@ -5,11 +5,11 @@
 # your own environment!.
 
 # change DEPS_INC in order to point to the dependency headers.
-DEPS_INC=-IC:\SDL2DEV\h\SDL2
+DEPS_INC=-IC:\SDL3DEV\h\SDL3
 # change DEPS_LIB in order to point to the dependency libraries.
-DEPS_LIB=C:\SDL2DEV\lib
+DEPS_LIB=C:\SDL3DEV\lib
 
-LIBNAME = SDL2snd
+LIBNAME = SDL3snd
 VERSION = 2.0.3
 
 LIBFILE = $(LIBNAME).lib
@@ -66,7 +66,7 @@ CFLAGS+= -DBUILD_SDL -DSDL_SOUND_DLL_EXPORTS
 #         -DSOUND_SUPPORTS_RAW &
 #         -DSOUND_SUPPORTS_FLAC
 
-LIBSDL = SDL2.lib
+LIBSDL = SDL3.lib
 LIBS = $(LIBSDL) $(MODPLIB) $(TIMILIB)
 
 .extensions:

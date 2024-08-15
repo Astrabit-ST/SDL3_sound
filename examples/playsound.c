@@ -657,7 +657,7 @@ static void report_filename(const char *filename)
     if (ptr != NULL)
         filename = ptr + 1;
 
-    /* SDL2's PulseAudio backend picks up these hints. */
+    /* SDL3's PulseAudio backend picks up these hints. */
     SDL_SetHint("SDL_AUDIO_DEVICE_APP_NAME", icon);
     SDL_SetHint("SDL_AUDIO_DEVICE_STREAM_NAME", filename);
 

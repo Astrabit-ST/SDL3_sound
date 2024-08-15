@@ -27,11 +27,11 @@ jobs:
       if: runner.os == 'Linux'
       run: |
         sudo apt-get update
-        sudo apt-get install cmake ninja-build libsdl2-dev
+        sudo apt-get install cmake ninja-build libsdl3-dev
     - name: Setup MacOS dependencies
       if: runner.os == 'MacOS'
       run: |
-        brew install sdl2
+        brew install sdl3
     - name: Set up MSYS2 dependencies
       if: matrix.platform.shell == 'msys2 {0}'
       uses: msys2/setup-msys2@v2
@@ -41,11 +41,11 @@ jobs:
           ${{ matrix.platform.msys-env }}-gcc
           ${{ matrix.platform.msys-env }}-cmake
           ${{ matrix.platform.msys-env }}-ninja
-          ${{ matrix.platform.msys-env }}-SDL2
+          ${{ matrix.platform.msys-env }}-SDL3
     - name: Setup MSVC dependencies
       if: matrix.platform.vcpkg != ''
       run: |
-        vcpkg install --triplet ${{ matrix.platform.vcpkg }} sdl2
+        vcpkg install --triplet ${{ matrix.platform.vcpkg }} sdl3
 
     - name: Get SDL_sound sources
       uses: actions/checkout@v3
