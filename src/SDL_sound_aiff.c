@@ -169,23 +169,23 @@ static int read_comm_chunk(SDL_IOStream *rw, comm_t *comm)
     /* skip reading the chunk ID, since it was already read at this point... */
     comm->ckID = commID;
 
-    if (SDL_ReadIO(rw, &comm->ckDataSize, sizeof (comm->ckDataSize)) != 1)
+    if (SDL_ReadIO(rw, &comm->ckDataSize, sizeof (comm->ckDataSize)) != sizeof (comm->ckDataSize))
         return 0;
     comm->ckDataSize = SDL_Swap32BE(comm->ckDataSize);
 
-    if (SDL_ReadIO(rw, &comm->numChannels, sizeof (comm->numChannels)) != 1)
+    if (SDL_ReadIO(rw, &comm->numChannels, sizeof (comm->numChannels)) != sizeof (comm->numChannels))
         return 0;
     comm->numChannels = SDL_Swap16BE(comm->numChannels);
 
-    if (SDL_ReadIO(rw, &comm->numSampleFrames, sizeof (comm->numSampleFrames)) != 1)
+    if (SDL_ReadIO(rw, &comm->numSampleFrames, sizeof (comm->numSampleFrames)) != sizeof (comm->numSampleFrames))
         return 0;
     comm->numSampleFrames = SDL_Swap32BE(comm->numSampleFrames);
 
-    if (SDL_ReadIO(rw, &comm->sampleSize, sizeof (comm->sampleSize)) != 1)
+    if (SDL_ReadIO(rw, &comm->sampleSize, sizeof (comm->sampleSize)) != sizeof (comm->sampleSize))
         return 0;
     comm->sampleSize = SDL_Swap16BE(comm->sampleSize);
 
-    if (SDL_ReadIO(rw, sampleRate, sizeof (sampleRate)) != 1)
+    if (SDL_ReadIO(rw, sampleRate, sizeof (sampleRate)) != sizeof (sampleRate))
         return 0;
     comm->sampleRate = SANE_to_Uint32(sampleRate);
 
@@ -195,7 +195,7 @@ static int read_comm_chunk(SDL_IOStream *rw, comm_t *comm)
                          + sizeof(sampleRate))
     {
         if (SDL_ReadIO(rw, &comm->compressionType,
-                       sizeof (comm->compressionType)) != 1)
+                       sizeof (comm->compressionType)) != sizeof (comm->compressionType))
             return 0;
         comm->compressionType = SDL_Swap32BE(comm->compressionType);
     } /* if */
@@ -231,15 +231,15 @@ static int read_ssnd_chunk(SDL_IOStream *rw, ssnd_t *ssnd)
     /* skip reading the chunk ID, since it was already read at this point... */
     ssnd->ckID = ssndID;
 
-    if (SDL_ReadIO(rw, &ssnd->ckDataSize, sizeof (ssnd->ckDataSize)) != 1)
+    if (SDL_ReadIO(rw, &ssnd->ckDataSize, sizeof (ssnd->ckDataSize)) != sizeof (ssnd->ckDataSize))
         return 0;
     ssnd->ckDataSize = SDL_Swap32BE(ssnd->ckDataSize);
 
-    if (SDL_ReadIO(rw, &ssnd->offset, sizeof (ssnd->offset)) != 1)
+    if (SDL_ReadIO(rw, &ssnd->offset, sizeof (ssnd->offset)) != sizeof (ssnd->offset))
         return 0;
     ssnd->offset = SDL_Swap32BE(ssnd->offset);
 
-    if (SDL_ReadIO(rw, &ssnd->blockSize, sizeof (ssnd->blockSize)) != 1)
+    if (SDL_ReadIO(rw, &ssnd->blockSize, sizeof (ssnd->blockSize)) != sizeof (ssnd->blockSize))
         return 0;
     ssnd->blockSize = SDL_Swap32BE(ssnd->blockSize);
 
@@ -351,11 +351,11 @@ static int find_chunk(SDL_IOStream *rw, Uint32 id)
 
     while (1)
     {
-        BAIL_IF_MACRO(SDL_ReadIO(rw, &_id, sizeof (_id)) != 1, NULL, 0);
+        BAIL_IF_MACRO(SDL_ReadIO(rw, &_id, sizeof (_id)) != sizeof (_id), NULL, 0);
         if (SDL_Swap32LE(_id) == id)
             return 1;
 
-        BAIL_IF_MACRO(SDL_ReadIO(rw, &siz, sizeof (siz)) != 1, NULL, 0);
+        BAIL_IF_MACRO(SDL_ReadIO(rw, &siz, sizeof (siz)) != sizeof (siz), NULL, 0);
         siz = SDL_Swap32BE(siz);
         SDL_assert(siz > 0);
         BAIL_IF_MACRO(SDL_SeekIO(rw, siz, SDL_IO_SEEK_CUR) == -1, NULL, 0);

@@ -302,11 +302,11 @@ static SDL_INLINE int extended_shn_magic_search(Sound_Sample *sample)
 
     while (1)
     {
-        BAIL_IF_MACRO(SDL_ReadIO(rw, &ch, sizeof (ch)) != 1, NULL, -1);
+        BAIL_IF_MACRO(SDL_ReadIO(rw, &ch, sizeof (ch)) != sizeof (ch), NULL, -1);
         word = ((word << 8) & 0xFFFFFF00) | ch;
         if (SDL_Swap32BE(word) == SHN_MAGIC)
         {
-            BAIL_IF_MACRO(SDL_ReadIO(rw, &ch, sizeof (ch)) != 1, NULL, -1);
+            BAIL_IF_MACRO(SDL_ReadIO(rw, &ch, sizeof (ch)) != sizeof (ch), NULL, -1);
             return (int) ch;
         } /* if */
     } /* while */
@@ -334,9 +334,9 @@ static SDL_INLINE int determine_shn_version(Sound_Sample *sample,
     if (ext != NULL && SDL_strcasecmp(ext, "shn") == 0)
         return extended_shn_magic_search(sample);
 
-    BAIL_IF_MACRO(SDL_ReadIO(rw, &magic, sizeof (magic)) != 1, NULL, -1);
+    BAIL_IF_MACRO(SDL_ReadIO(rw, &magic, sizeof (magic)) != sizeof (magic), NULL, -1);
     BAIL_IF_MACRO(SDL_Swap32LE(magic) != SHN_MAGIC, "SHN: Not a SHN file", -1);
-    BAIL_IF_MACRO(SDL_ReadIO(rw, &ch, sizeof (ch)) != 1, NULL, -1);
+    BAIL_IF_MACRO(SDL_ReadIO(rw, &ch, sizeof (ch)) != sizeof (ch), NULL, -1);
     BAIL_IF_MACRO(ch > 3, "SHN: Unsupported file version", -1);
 
     return (int) ch;

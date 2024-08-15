@@ -75,27 +75,27 @@ struct audec
  */
 static int read_au_header(SDL_IOStream *rw, struct au_file_hdr *hdr)
 {
-    if (SDL_ReadIO(rw, &hdr->magic, sizeof (hdr->magic)) != 1)
+    if (SDL_ReadIO(rw, &hdr->magic, sizeof (hdr->magic)) != sizeof (hdr->magic))
         return 0;
     hdr->magic = SDL_Swap32BE(hdr->magic);
 
-    if (SDL_ReadIO(rw, &hdr->hdr_size, sizeof (hdr->hdr_size)) != 1)
+    if (SDL_ReadIO(rw, &hdr->hdr_size, sizeof (hdr->hdr_size)) != sizeof (hdr->hdr_size))
         return 0;
     hdr->hdr_size = SDL_Swap32BE(hdr->hdr_size);
 
-    if (SDL_ReadIO(rw, &hdr->data_size, sizeof (hdr->data_size)) != 1)
+    if (SDL_ReadIO(rw, &hdr->data_size, sizeof (hdr->data_size)) != sizeof (hdr->data_size))
         return 0;
     hdr->data_size = SDL_Swap32BE(hdr->data_size);
 
-    if (SDL_ReadIO(rw, &hdr->encoding, sizeof (hdr->encoding)) != 1)
+    if (SDL_ReadIO(rw, &hdr->encoding, sizeof (hdr->encoding)) != sizeof (hdr->encoding))
         return 0;
     hdr->encoding = SDL_Swap32BE(hdr->encoding);
 
-    if (SDL_ReadIO(rw, &hdr->sample_rate, sizeof (hdr->sample_rate)) != 1)
+    if (SDL_ReadIO(rw, &hdr->sample_rate, sizeof (hdr->sample_rate)) != sizeof (hdr->sample_rate))
         return 0;
     hdr->sample_rate = SDL_Swap32BE(hdr->sample_rate);
 
-    if (SDL_ReadIO(rw, &hdr->channels, sizeof (hdr->channels)) != 1)
+    if (SDL_ReadIO(rw, &hdr->channels, sizeof (hdr->channels)) != sizeof (hdr->channels))
         return 0;
     hdr->channels = SDL_Swap32BE(hdr->channels);
 

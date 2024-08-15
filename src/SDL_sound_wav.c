@@ -22,7 +22,7 @@
 static SDL_INLINE int read_le16(SDL_IOStream *rw, Uint16 *ui16)
 {
     int rc = SDL_ReadIO(rw, ui16, sizeof (Uint16));
-    BAIL_IF_MACRO(rc != 1, ERR_IO_ERROR, 0);
+    BAIL_IF_MACRO(rc != sizeof (Uint16), ERR_IO_ERROR, 0);
     *ui16 = SDL_Swap16LE(*ui16);
     return 1;
 } /* read_le16 */
@@ -32,7 +32,7 @@ static SDL_INLINE int read_le16(SDL_IOStream *rw, Uint16 *ui16)
 static SDL_INLINE int read_le32(SDL_IOStream *rw, Uint32 *ui32)
 {
     int rc = SDL_ReadIO(rw, ui32, sizeof (Uint32));
-    BAIL_IF_MACRO(rc != 1, ERR_IO_ERROR, 0);
+    BAIL_IF_MACRO(rc != sizeof (Uint32), ERR_IO_ERROR, 0);
     *ui32 = SDL_Swap32LE(*ui32);
     return 1;
 } /* read_le32 */
@@ -52,7 +52,7 @@ static SDL_INLINE int read_le32s(SDL_IOStream *rw, Sint32 *si32)
 static SDL_INLINE int read_uint8(SDL_IOStream *rw, Uint8 *ui8)
 {
     int rc = SDL_ReadIO(rw, ui8, sizeof (Uint8));
-    BAIL_IF_MACRO(rc != 1, ERR_IO_ERROR, 0);
+    BAIL_IF_MACRO(rc != sizeof (Uint8), ERR_IO_ERROR, 0);
     return 1;
 } /* read_uint8 */
 
