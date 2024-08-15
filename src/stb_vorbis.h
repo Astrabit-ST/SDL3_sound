@@ -1399,7 +1399,7 @@ static uint8 get8(vorb *z)
 {
    #ifdef STB_VORBIS_SDL
    uint8 c;
-   if (SDL_ReadIO(z->rwops, &c, 1, 1) != 1) { z->eof = TRUE; return 0; }
+   if (SDL_ReadIO(z->rwops, &c, 1) != 1) { z->eof = TRUE; return 0; }
    return c;
 
    #else
@@ -1431,7 +1431,7 @@ static uint32 get32(vorb *f)
 static int getn(vorb *z, uint8 *data, int n)
 {
    #ifdef STB_VORBIS_SDL
-   if (SDL_ReadIO(z->rwops, data, n, 1) == 1) return 1;
+   if (SDL_ReadIO(z->rwops, data, n) == 1) return 1;
    z->eof = 1;
    return 0;
 
