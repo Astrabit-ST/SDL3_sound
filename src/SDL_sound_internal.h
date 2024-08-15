@@ -25,7 +25,7 @@
 #error SDL_sound requires SDL 2.0.7 or later. Please upgrade.
 #endif
 
-#if ((defined(__GNUC__) && (__GNUC__ >= 4)) || defined(__clang__)) && !(defined(_WIN32) || defined(__OS2__))
+#if ((defined(__GNUC__) && (__GNUC__ >= 4)) || defined(__clang__)) && !(defined(_WIN32) || defined(SDL_PLATFORM_OS2))
 #define SOUND_HAVE_PRAGMA_VISIBILITY 1
 #endif
 
@@ -77,7 +77,7 @@
 #endif
 
 /* only build CoreAudio support if on an Apple platform. */
-#if SOUND_SUPPORTS_COREAUDIO && !defined(__APPLE__)
+#if SOUND_SUPPORTS_COREAUDIO && !defined(SDL_PLATFORM_APPLE)
 #undef SOUND_SUPPORTS_COREAUDIO
 #define SOUND_SUPPORTS_COREAUDIO 0
 #endif
@@ -143,7 +143,7 @@ typedef struct __SOUND_DECODERFUNCTIONS__
          * in Sound_SampleInternal section:
          *    Sound_Sample *next;  (offlimits)
          *    Sound_Sample *prev;  (offlimits)
-         *    SDL_RWops *rw;       (can use, but do NOT close it)
+         *    SDL_IOStream *rw;       (can use, but do NOT close it)
          *    const Sound_DecoderFunctions *funcs; (that's this structure)
          *    SDL_AudioStream stream; (offlimits)
          *    SDL_bool pending_eof; (offlimits)
@@ -222,7 +222,7 @@ typedef struct __SOUND_DECODERFUNCTIONS__
          *  have a valid audio stream with a given set of characteristics.
          *
          * The decoder is responsible for calling seek() on the associated
-         *  SDL_RWops. A failing call to seek() should be the ONLY reason that
+         *  SDL_IOStream. A failing call to seek() should be the ONLY reason that
          *  this method should ever fail!
          */
     int (*rewind)(Sound_Sample *sample);
@@ -236,7 +236,7 @@ typedef struct __SOUND_DECODERFUNCTIONS__
          *  decoding to a given point.
          *
          * The decoder is responsible for calling seek() on the associated
-         *  SDL_RWops.
+         *  SDL_IOStream.
          *
          * If there is an error, try to recover so that the next read will
          *  continue as if nothing happened.
@@ -251,7 +251,7 @@ typedef struct __SOUND_SAMPLEINTERNAL__
 {
     Sound_Sample *next;
     Sound_Sample *prev;
-    SDL_RWops *rw;
+    SDL_IOStream *rw;
     const Sound_DecoderFunctions *funcs;
     SDL_AudioStream *stream;
     SDL_bool pending_eof;
@@ -308,8 +308,8 @@ Uint32 __Sound_convertMsToBytePos(Sound_AudioInfo *info, Uint32 ms);
 #if SDL_VERSION_ATLEAST(2,0,12)
 #define HAVE_SDL_STRTOKR
 #else
-#define SDL_strtokr __Sound_strtokr
-extern char *SDL_strtokr(char *s1, const char *s2, char **saveptr);
+#define SDL_strtok_r __Sound_strtokr
+extern char *SDL_strtok_r(char *s1, const char *s2, char **saveptr);
 #endif
 
 /* SDL doesn't provide a rand() replacement */

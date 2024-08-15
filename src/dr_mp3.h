@@ -3374,7 +3374,7 @@ static drmp3_result drmp3_fopen(FILE** ppFile, const char* pFilePath, const char
         return drmp3_result_from_errno(err);
     }
 #else
-#if defined(_WIN32) || defined(__APPLE__)
+#if defined(_WIN32) || defined(SDL_PLATFORM_APPLE)
     *ppFile = fopen(pFilePath, pOpenMode);
 #else
     #if defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS == 64 && defined(_LARGEFILE64_SOURCE)

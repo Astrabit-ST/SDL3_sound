@@ -14,7 +14,7 @@
 #include "options.h"
 #include "common.h"
 
-#if defined(_WIN32)||defined(__OS2__)
+#if defined(_WIN32)||defined(SDL_PLATFORM_OS2)
 #define CHAR_DIRSEP '\\'
 #define is_dirsep(c) ((c) == '/' || (c) == '\\')
 #define is_abspath(p) ((p)[0] == '/' || (p)[0] == '\\' || ((p)[0] && (p)[1] == ':'))
@@ -33,9 +33,9 @@ typedef struct _PathList {
 static PathList *pathlist = NULL;
 
 /* This is meant to find and open files for reading */
-SDL_RWops *timi_openfile(const char *name)
+SDL_IOStream *timi_openfile(const char *name)
 {
-  SDL_RWops *rw;
+  SDL_IOStream *rw;
 
   if (!name || !(*name)) {
       SNDDBG(("Attempted to open nameless file.\n"));
@@ -45,7 +45,7 @@ SDL_RWops *timi_openfile(const char *name)
   /* First try the given name */
 
   SNDDBG(("Trying to open %s\n", name));
-  if ((rw = SDL_RWFromFile(name, "rb")) != NULL)
+  if ((rw = SDL_IOFromFile(name, "rb")) != NULL)
     return rw;
 
   if (!is_abspath(name))
@@ -70,7 +70,7 @@ SDL_RWops *timi_openfile(const char *name)
 	  }
 	SDL_strlcpy(p, name, sizeof(current_filename) - l);
 	SNDDBG(("Trying to open %s\n", current_filename));
-	if ((rw = SDL_RWFromFile(current_filename, "rb")))
+	if ((rw = SDL_IOFromFile(current_filename, "rb")))
 	  return rw;
 	plp = plp->next;
       }

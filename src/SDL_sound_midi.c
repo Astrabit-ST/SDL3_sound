@@ -22,7 +22,7 @@
 /* Config file should contain any other directory that needs
  * to be added to the search path. The library adds the path
  * of the config file to its search path, too. */
-#if defined(_WIN32) || defined(__OS2__)
+#if defined(_WIN32) || defined(SDL_PLATFORM_OS2)
 # define TIMIDITY_CFG           "C:\\TIMIDITY\\TIMIDITY.CFG"
 #else  /* unix: */
 # define TIMIDITY_CFG_ETC       "/etc/timidity.cfg"
@@ -65,12 +65,12 @@ static void MIDI_quit(void)
 static int MIDI_open(Sound_Sample *sample, const char *ext)
 {
     Sound_SampleInternal *internal = (Sound_SampleInternal *) sample->opaque;
-    SDL_RWops *rw = internal->rw;
+    SDL_IOStream *rw = internal->rw;
     SDL_AudioSpec spec;
     MidiSong *song;
 
     spec.channels = (sample->desired.channels == 1) ? 1 : 2;
-    spec.format = (sample->desired.format == 0) ? AUDIO_S16SYS : sample->desired.format;
+    spec.format = (sample->desired.format == 0) ? SDL_AUDIO_S16 : sample->desired.format;
     spec.freq = (sample->desired.rate == 0) ? 44100 : sample->desired.rate;
     spec.samples = sample->buffer_size / (SDL_AUDIO_BITSIZE(spec.format) / 8) / spec.channels;
     
