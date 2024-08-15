@@ -169,23 +169,23 @@ static int read_comm_chunk(SDL_IOStream *rw, comm_t *comm)
     /* skip reading the chunk ID, since it was already read at this point... */
     comm->ckID = commID;
 
-    if (SDL_ReadIO(rw, &comm->ckDataSize, sizeof (comm->ckDataSize), 1) != 1)
+    if (SDL_ReadIO(rw, &comm->ckDataSize, sizeof (comm->ckDataSize)) != 1)
         return 0;
     comm->ckDataSize = SDL_Swap32BE(comm->ckDataSize);
 
-    if (SDL_ReadIO(rw, &comm->numChannels, sizeof (comm->numChannels), 1) != 1)
+    if (SDL_ReadIO(rw, &comm->numChannels, sizeof (comm->numChannels)) != 1)
         return 0;
     comm->numChannels = SDL_Swap16BE(comm->numChannels);
 
-    if (SDL_ReadIO(rw, &comm->numSampleFrames, sizeof (comm->numSampleFrames), 1) != 1)
+    if (SDL_ReadIO(rw, &comm->numSampleFrames, sizeof (comm->numSampleFrames)) != 1)
         return 0;
     comm->numSampleFrames = SDL_Swap32BE(comm->numSampleFrames);
 
-    if (SDL_ReadIO(rw, &comm->sampleSize, sizeof (comm->sampleSize), 1) != 1)
+    if (SDL_ReadIO(rw, &comm->sampleSize, sizeof (comm->sampleSize)) != 1)
         return 0;
     comm->sampleSize = SDL_Swap16BE(comm->sampleSize);
 
-    if (SDL_ReadIO(rw, sampleRate, sizeof (sampleRate), 1) != 1)
+    if (SDL_ReadIO(rw, sampleRate, sizeof (sampleRate)) != 1)
         return 0;
     comm->sampleRate = SANE_to_Uint32(sampleRate);
 
@@ -195,7 +195,7 @@ static int read_comm_chunk(SDL_IOStream *rw, comm_t *comm)
                          + sizeof(sampleRate))
     {
         if (SDL_ReadIO(rw, &comm->compressionType,
-                       sizeof (comm->compressionType), 1) != 1)
+                       sizeof (comm->compressionType)) != 1)
             return 0;
         comm->compressionType = SDL_Swap32BE(comm->compressionType);
     } /* if */
@@ -231,15 +231,15 @@ static int read_ssnd_chunk(SDL_IOStream *rw, ssnd_t *ssnd)
     /* skip reading the chunk ID, since it was already read at this point... */
     ssnd->ckID = ssndID;
 
-    if (SDL_ReadIO(rw, &ssnd->ckDataSize, sizeof (ssnd->ckDataSize), 1) != 1)
+    if (SDL_ReadIO(rw, &ssnd->ckDataSize, sizeof (ssnd->ckDataSize)) != 1)
         return 0;
     ssnd->ckDataSize = SDL_Swap32BE(ssnd->ckDataSize);
 
-    if (SDL_ReadIO(rw, &ssnd->offset, sizeof (ssnd->offset), 1) != 1)
+    if (SDL_ReadIO(rw, &ssnd->offset, sizeof (ssnd->offset)) != 1)
         return 0;
     ssnd->offset = SDL_Swap32BE(ssnd->offset);
 
-    if (SDL_ReadIO(rw, &ssnd->blockSize, sizeof (ssnd->blockSize), 1) != 1)
+    if (SDL_ReadIO(rw, &ssnd->blockSize, sizeof (ssnd->blockSize)) != 1)
         return 0;
     ssnd->blockSize = SDL_Swap32BE(ssnd->blockSize);
 
@@ -269,7 +269,7 @@ static Uint32 read_sample_fmt_normal(Sound_Sample *sample)
          * We don't actually do any decoding, so we read the AIFF data
          *  directly into the internal buffer...
          */
-    retval = SDL_ReadIO(internal->rw, internal->buffer, 1, max);
+    retval = SDL_ReadIO(internal->rw, internal->buffer, max);
 
     a->bytesLeft -= retval;
 
@@ -351,11 +351,11 @@ static int find_chunk(SDL_IOStream *rw, Uint32 id)
 
     while (1)
     {
-        BAIL_IF_MACRO(SDL_ReadIO(rw, &_id, sizeof (_id), 1) != 1, NULL, 0);
+        BAIL_IF_MACRO(SDL_ReadIO(rw, &_id, sizeof (_id)) != 1, NULL, 0);
         if (SDL_Swap32LE(_id) == id)
             return 1;
 
-        BAIL_IF_MACRO(SDL_ReadIO(rw, &siz, sizeof (siz), 1) != 1, NULL, 0);
+        BAIL_IF_MACRO(SDL_ReadIO(rw, &siz, sizeof (siz)) != 1, NULL, 0);
         siz = SDL_Swap32BE(siz);
         SDL_assert(siz > 0);
         BAIL_IF_MACRO(SDL_SeekIO(rw, siz, SDL_IO_SEEK_CUR) == -1, NULL, 0);
@@ -397,10 +397,16 @@ static int AIFF_open(Sound_Sample *sample, const char *ext)
     ssnd_t s;
     aiff_t *a;
 
-    BAIL_IF_MACRO(SDL_ReadU32LE(rw) != formID, "AIFF: Not a FORM file.", 0);
-        SDL_ReadU32BE(rw);  /* throw the length away; we don't need it. */
+    Uint32 read_form_id;
+    SDL_ReadU32LE(rw, &read_form_id);
+    BAIL_IF_MACRO(read_form_id != formID, "AIFF: Not a FORM file.", 0);
+    // -- FIXME Melody --
+    // we never use read_form_id again, so this effectively replicates the old <SDL2 behavior.
+    // we could pass NULL and that would have clearer intentions but I have no idea if SDL_ReadU32BE accepts NULL and don't want to find out.
+    // -- FIXME --
+    SDL_ReadU32BE(rw, &read_form_id);  /* throw the length away; we don't need it. */
 
-    chunk_id = SDL_ReadU32LE(rw);
+    SDL_ReadU32LE(rw, &chunk_id);
     BAIL_IF_MACRO(chunk_id != aiffID && chunk_id != aifcID,
         "AIFF: Not an AIFF or AIFC file.", 0);
 
