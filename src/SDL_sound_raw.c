@@ -104,7 +104,7 @@ static Uint32 RAW_read(Sound_Sample *sample)
          *  directly into the internal buffer...
          */
     retval = SDL_ReadIO(internal->rw, internal->buffer,
-                        1, internal->buffer_size);
+                        internal->buffer_size);
 
         /* Make sure the read went smoothly... */
     if (retval == 0)
