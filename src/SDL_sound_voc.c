@@ -91,7 +91,7 @@ static void VOC_quit(void)
 
 static SDL_INLINE int voc_readbytes(SDL_IOStream *src, vs_t *v, void *p, int size)
 {
-    if (SDL_ReadIO(src, p, size, 1) != 1)
+    if (SDL_ReadIO(src, p, size) != 1)
     {
         v->error = 1;
         BAIL_MACRO("VOC: i/o error", 0);
@@ -149,13 +149,13 @@ static int voc_get_block(Sound_Sample *sample, vs_t *v)
     v->silent = 0;
     while (v->rest == 0)
     {
-        if (SDL_ReadIO(src, &block, sizeof (block), 1) != 1)
+        if (SDL_ReadIO(src, &block, sizeof (block)) != 1)
             return 1;  /* assume that's the end of the file. */
 
         if (block == VOC_TERM)
             return 1;
 
-        if (SDL_ReadIO(src, bits24, sizeof (bits24), 1) != 1)
+        if (SDL_ReadIO(src, bits24, sizeof (bits24)) != 1)
             return 1;  /* assume that's the end of the file. */
         
         /* Size is an 24-bit value. Ugh. */
@@ -374,7 +374,7 @@ static int voc_read_waveform(Sound_Sample *sample, int fill_buf, Uint32 max)
     {
         if (fill_buf)
         {
-            done = SDL_ReadIO(src, buf + v->bufpos, 1, max);
+            done = SDL_ReadIO(src, buf + v->bufpos, max);
             if (done < ((Sint64) max))
             {
                 __Sound_SetError("VOC: i/o error");
