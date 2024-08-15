@@ -967,7 +967,7 @@ int main(int argc, char **argv)
         report_filename(filename);
 
         SDL_AudioStream* audio_stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &sdl_desired, audio_callback_compat, sample);
-        if (audio_stream == 0)
+        if (audio_stream == NULL)
         {
             fprintf(stderr, "Couldn't open audio device!\n"
                             "  reason: [%s].\n", SDL_GetError());
